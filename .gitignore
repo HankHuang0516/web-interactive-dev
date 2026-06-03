@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Toolchain-specific entries will be added once U95 spec lands.
+# Provisional catch-alls below; trim once toolchain is chosen.
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.cache/
+__pycache__/
+*.pyc
+.venv/
+venv/
