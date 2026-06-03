@@ -1,0 +1,33 @@
+name: CI
+
+# Placeholder CI — exits 0 on empty repo. Will be replaced with real lint+test
+# matrix once U95 spec picks the toolchain (Node/TS, Python, etc.).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: lint (placeholder)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder lint
+        run: |
+          echo "No linter configured yet — waiting on U95 spec."
+          echo "Exiting 0 so PRs can land the initial skeleton."
+          exit 0
+
+  test:
+    name: test (placeholder)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder tests
+        run: |
+          echo "No test runner configured yet — waiting on U95 spec."
+          echo "Exiting 0 so PRs can land the initial skeleton."
+          exit 0
