@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>web-interactive-dev v1</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0d1117;
+      --fg: #f0f6fc;
+      --panel: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --muted: #8b949e;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--fg); padding: 24px; }
+    h1 { font-size: 18px; margin: 0 0 8px; }
+    p.lede { color: var(--muted); margin: 0 0 24px; font-size: 13px; }
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .panel { border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--panel); display: flex; flex-direction: column; }
+    .panel label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    textarea { width: 100%; min-height: 200px; resize: vertical; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; line-height: 1.5; }
+    .controls { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    button { background: var(--accent); color: #0d1117; border: 0; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    button.secondary { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+    label.format { font-size: 12px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+    .output { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    pre { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; overflow: auto; white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; line-height: 1.5; max-height: 420px; min-height: 80px; }
+    .meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .status { font-size: 12px; color: var(--muted); margin-left: auto; }
+  </style>
+</head>
+<body>
+  <h1>web-interactive-dev v1</h1>
+  <p class="lede">Point-and-edit demo — type or paste content into both panes, generate a diff + Agent-ready prompt. Single local user, browser-only, no network.</p>
+
+  <div class="editors">
+    <div class="panel">
+      <label for="orig">Original</label>
+      <textarea id="orig" data-testid="original" spellcheck="false">function greet(name) {
+  return "hi " + name;
+}
+</textarea>
+    </div>
+    <div class="panel">
+      <label for="edit">Edited</label>
+      <textarea id="edit" data-testid="edited" spellcheck="false">function greet(name) {
+  if (!name) throw new Error("name required");
+  return `Hello, ${name}!`;
+}
+</textarea>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="generate" data-testid="generate">Generate Prompt</button>
+    <button id="copy" class="secondary" data-testid="copy">Copy Prompt</button>
+    <label class="format">
+      Format:
+      <select id="format" data-testid="format">
+        <option value="unified">unified</option>
+        <option value="json">json</option>
+      </select>
+    </label>
+    <span class="status" id="status" data-testid="status">ready</span>
+  </div>
+
+  <div class="output">
+    <div class="panel">
+      <label>Diff</label>
+      <pre id="diffOut" data-testid="diff-out"></pre>
+      <div class="meta" id="diffMeta" data-testid="diff-meta"></div>
+    </div>
+    <div class="panel">
+      <label>Prompt for Agent</label>
+      <pre id="promptOut" data-testid="prompt-out"></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { captureEdits, formatAsPrompt, SCHEMA_VERSION, VERSION } from './src/wid.js';
+
+    window.WID = { captureEdits, formatAsPrompt, SCHEMA_VERSION, VERSION };
+
+    const $ = (id) => document.getElementById(id);
+    const setStatus = (msg) => { $('status').textContent = msg; };
+
+    function run() {
+      const orig = $('orig').value;
+      const edit = $('edit').value;
+      const fmt = $('format').value;
+      let diff;
+      try {
+        diff = captureEdits(orig, edit, { format: fmt });
+      } catch (err) {
+        setStatus('error: ' + (err.message || err));
+        return;
+      }
+      const diffBody = diff.unified || JSON.stringify(diff, null, 2);
+      $('diffOut').textContent = diffBody;
+      $('diffMeta').textContent = `schema ${diff.schemaVersion} · format ${diff.format} · ${diff.changeCount} change-lines · originalHash ${diff.originalHash}`;
+      const prompt = formatAsPrompt(diff);
+      $('promptOut').textContent = prompt;
+      window.__lastDiff = diff;
+      window.__lastPrompt = prompt;
+      setStatus(`generated ${new Date().toISOString()}`);
+    }
+
+    $('generate').addEventListener('click', run);
+    $('copy').addEventListener('click', async () => {
+      const text = $('promptOut').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('prompt copied');
+      } catch (err) {
+        setStatus('copy failed: ' + err.message);
+      }
+    });
+
+    run();
+  </script>
+</body>
+</html>
