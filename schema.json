@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HankHuang0516/web-interactive-dev/blob/main/schema.json",
+  "title": "web-interactive-dev diff schema",
+  "description": "Schema v1.2 — output of captureEdits(original, edited, opts) per spec v1.3.",
+  "type": "object",
+  "required": ["schemaVersion", "format", "originalHash", "editedHash", "changeCount", "hunks"],
+  "properties": {
+    "schemaVersion": { "const": "1.2" },
+    "format": { "enum": ["unified-diff", "json-patch"] },
+    "originalHash": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
+    "editedHash": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
+    "originalName": { "type": "string" },
+    "editedName": { "type": "string" },
+    "changeCount": { "type": "integer", "minimum": 0 },
+    "unified": { "type": "string", "description": "Present only when format=unified-diff." },
+    "hunks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["originalStart", "originalCount", "editedStart", "editedCount", "lines"],
+        "properties": {
+          "originalStart": { "type": "integer", "minimum": 1 },
+          "originalCount": { "type": "integer", "minimum": 0 },
+          "editedStart": { "type": "integer", "minimum": 1 },
+          "editedCount": { "type": "integer", "minimum": 0 },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["op", "line"],
+              "properties": {
+                "op": { "enum": [" ", "+", "-"] },
+                "line": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

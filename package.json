@@ -1,0 +1,28 @@
+{
+  "name": "@hankhuang0516/web-interactive-dev",
+  "version": "0.1.0",
+  "description": "Web-first interactive-dev UI + diff→prompt-for-Agent output. Standalone, single-tenant, browser-only.",
+  "type": "module",
+  "main": "src/wid.js",
+  "module": "src/wid.js",
+  "exports": {
+    ".": "./src/wid.js"
+  },
+  "files": [
+    "src",
+    "index.html",
+    "README.md",
+    "spec.md",
+    "schema.json"
+  ],
+  "scripts": {
+    "test": "playwright test",
+    "test:install": "playwright install --with-deps chromium",
+    "serve": "python3 -m http.server 8765"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  },
+  "keywords": ["interactive-dev", "diff", "prompt-engineering", "claude", "agent"],
+  "license": "MIT"
+}

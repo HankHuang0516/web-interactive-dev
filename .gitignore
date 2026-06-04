@@ -17,15 +17,11 @@ Thumbs.db
 *.log
 logs/
 
-# Toolchain-specific entries will be added once U95 spec lands.
-# Provisional catch-alls below; trim once toolchain is chosen.
+# Toolchain (Node + Playwright, picked by v1 impl)
 node_modules/
 dist/
 build/
 coverage/
-.next/
-.cache/
-__pycache__/
-*.pyc
-.venv/
-venv/
+playwright-report/
+test-results/
+.scratch/
